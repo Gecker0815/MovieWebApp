@@ -15,10 +15,10 @@ db.init_app(app)
 data_manager = DataManager()
 
 
-@app.route('/', methods=['GET'])
-def home():
+@app.route('/')
+def index():
   users = data_manager.get_users()
-  return render_template('home.html', users=users)
+  return render_template('index.html', user=users)
 
 
 @app.route('/users', methods=['POST'])
