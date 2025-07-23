@@ -18,7 +18,7 @@ data_manager = DataManager()
 @app.route('/')
 def index():
   users = data_manager.get_users()
-  return render_template('index.html', user=users)
+  return render_template('index.html', users=users)
 
 
 @app.route('/users', methods=['POST'])
@@ -48,9 +48,9 @@ def list_favorite_movies_by_user(user_id):
 
     data_manager.add_movie(movie)
 
-
   movies = data_manager.get_movies(user_id)
-  return render_template('movies.html', movies=movies)
+  return render_template('movies.html', movies=movies, user_id=user_id)
+
 
 
 @app.route('/users/<int:user_id>/movies/<int:movie_id>/update', methods=['POST'])

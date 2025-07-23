@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Favorite Movies{% endblock %}
+
+{% block content %}
+<h1>Favorite Movies</h1>
+
+{% if movies %}
+<ul class="movie-list">
+    {% for movie in movies %}
+    <li class="movie-entry">
+        <div class="movie-card">
+            <img src="{{ movie.poster_url }}" alt="{{ movie.name }} poster" class="movie-poster">
+            <div class="movie-details">
+                <h2>{{ movie.name }}</h2>
+                <p><strong>Director:</strong> {{ movie.director }}</p>
+                <p><strong>Year:</strong> {{ movie.year }}</p>
+
+                <form action="{{ url_for('update_movie', user_id=movie.user_id, movie_id=movie.id) }}" method="post" class="inline-form">
+                    <input type="text" name="name" placeholder="New title" required>
+                    <button type="submit" class="btn">Update</button>
+                </form>
+
+                <form action="{{ url_for('delete_movie', user_id=movie.user_id, movie_id=movie.id) }}" method="post" class="inline-form">
+                    <button type="submit" class="btn danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No favorite movies found yet for this user. Try adding one below! 🍿</p>
+{% endif %}
+
+<hr>
+
+<h2>Add a New Movie</h2>
+<form action="{{ url_for('list_favorite_movies_by_user', user_id=user_id) }}" method="post" class="movie-form">
+    <input type="text" name="name" placeholder="Movie Title" required>
+    <button type="submit" class="btn">Search & Add from OMDb</button>
+</form>
+{% endblock %}
