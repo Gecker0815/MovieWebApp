@@ -17,10 +17,16 @@ class DataManager():
         db.session.add(new_movie)
         db.session.commit()
 
-    def update_movie(self, movie_id, new_title):
-        db.session.query(Movie).filter(Movie.id == movie_id).update({"name": new_title})
+    def update_movie(self, movie_id, user_id, new_title):
+        db.session.query(Movie).filter(
+            Movie.id == movie_id,
+            Movie.user_id == user_id
+        ).update({"name": new_title})
         db.session.commit()
 
-    def delete_movie(self, movie_id):
-        db.session.query(Movie).filter(Movie.id == movie_id).delete()
+    def delete_movie(self, movie_id, user_id):
+        db.session.query(Movie).filter(
+            Movie.id == movie_id,
+            Movie.user_id == user_id
+        ).delete()
         db.session.commit()
