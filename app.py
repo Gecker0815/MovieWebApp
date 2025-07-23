@@ -30,27 +30,38 @@ def add_user():
 
 @app.route('/users/<int:user_id>/movies', methods=['GET', 'POST'])
 def list_favorite_movies_by_user(user_id):
-  if request.method == 'POST':
-    load_dotenv()
+    if request.method == 'POST':
+        load_dotenv()
+        name = request.form.get('name')
+        params = {'t': name, 'apikey': os.getenv("API_KEY")}
 
-    name = request.form.get('name')
-    params = {'t': name, 'apikey': os.getenv("API_KEY")}
-    response = requests.get('http://www.omdbapi.com/', params=params, timeout=5)
-    movie = response.json()
+        try:
+            response = requests.get('https://www.omdbapi.com/', params=params, timeout=5)
+            response.raise_for_status()
+            movie_data = response.json()
 
-    movie = {
-        "name": movie['Title'],
-        "director": movie['Director'],
-        "year": movie['Year'],
-        "poster_url": movie['Poster'],
-        "user_id": user_id
-    }
+            if movie_data.get("Response") != "True":
+                return render_template('error.html', message="Movie not found in OMDb API."), 404
 
-    data_manager.add_movie(movie)
+            movie = {
+                "name": movie_data['Title'],
+                "director": movie_data['Director'],
+                "year": movie_data['Year'],
+                "poster_url": movie_data['Poster'],
+                "user_id": user_id
+            }
+            data_manager.add_movie(movie)
 
-  movies = data_manager.get_movies(user_id)
-  return render_template('movies.html', movies=movies, user_id=user_id)
+        except requests.RequestException as e:
+            return render_template('error.html', message=f"OMDb request failed: {e}"), 500
 
+    movies = data_manager.get_movies(user_id)
+    return render_template('movies.html', movies=movies, user_id=user_id)
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404.html', message="Oops! Page not found."), 404
 
 
 @app.route('/users/<int:user_id>/movies/<int:movie_id>/update', methods=['POST'])
