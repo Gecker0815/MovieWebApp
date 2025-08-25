@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, redirect
 import requests
 from data_manager import DataManager
-from models import db, Movie
+from models import db
 import os
 from dotenv import load_dotenv
 
@@ -17,19 +17,22 @@ data_manager = DataManager()
 
 @app.route('/')
 def index():
-  users = data_manager.get_users()
-  return render_template('index.html', users=users)
+    """Render the homepage with a list of users."""
+    users = data_manager.get_users()
+    return render_template('index.html', users=users)
 
 
 @app.route('/users', methods=['POST'])
 def add_user():
-  name = request.form.get('name')
-  data_manager.create_user(name)
-  return redirect('/')
+    """Add a new user from form input."""
+    name = request.form.get('name')
+    data_manager.create_user(name)
+    return redirect('/')
 
 
 @app.route('/users/<int:user_id>/movies', methods=['GET', 'POST'])
 def list_favorite_movies_by_user(user_id):
+    """List or add favorite movies for a user."""
     if request.method == 'POST':
         load_dotenv()
         name = request.form.get('name')
@@ -61,24 +64,28 @@ def list_favorite_movies_by_user(user_id):
 
 @app.errorhandler(404)
 def page_not_found(error):
+    """Render a custom 404 error page."""
     return render_template('404.html', message="Oops! Page not found."), 404
 
 
 @app.route('/users/<int:user_id>/movies/<int:movie_id>/update', methods=['POST'])
 def update_movie(user_id, movie_id):
-  name = request.form.get('name')
-  data_manager.update_movie(movie_id, user_id, name)
-  return redirect(f'/users/{user_id}/movies')
+    """Update the title of a user's movie."""
+    name = request.form.get('name')
+    data_manager.update_movie(movie_id, user_id, name)
+    return redirect(f'/users/{user_id}/movies')
 
 
 @app.route('/users/<int:user_id>/movies/<int:movie_id>/delete', methods=['POST'])
 def delete_movie(user_id, movie_id):
-  data_manager.delete_movie(movie_id, user_id)
-  return redirect(f'/users/{user_id}/movies')
+    """Delete a movie from a user's list."""
+    data_manager.delete_movie(movie_id, user_id)
+    return redirect(f'/users/{user_id}/movies')
 
 
 if __name__ == '__main__':
-  with app.app_context():
-    db.create_all()
+    """Initialize database and run the Flask app."""
+    with app.app_context():
+        db.create_all()
 
-  app.run()
+    app.run()
